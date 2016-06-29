@@ -34,6 +34,11 @@ static mmu_paddr_t paddr;
  * used to read-n-check */
 #define UNIQ_VAL 0x12345678
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#endif
+
 /* MMU data access exception handler */
 static inline int dfault_handler(uint32_t trap_nr, void *data) {
 	vmem_page_set_flags((mmu_ctx_t) ctx, BIGADDR, VMEM_PAGE_WRITABLE);
@@ -44,6 +49,10 @@ static inline int dfault_handler(uint32_t trap_nr, void *data) {
 	/* repeat instruction */
 	return 1;
 }
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 static inline int pagefault_handler(uint32_t nr, void *data) {
 	int err_addr;

@@ -408,6 +408,12 @@ static int fatfs_mount(void *dev, void *dir) {
 	return rc;
 }
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#endif
+
+
 /**
 * @brief Read related dir entries into dir buffer
 *
@@ -425,6 +431,9 @@ static inline int read_dir_buf(struct fat_fs_info *fsi, struct dirinfo *di) {
 	else
 		return fat_read_sector(fsi, fat_sector_buff, vi->rootdir);
 }
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 static int fatfs_create(struct node *parent_node, struct node *node) {
 	struct nas *parent_nas, *nas;
@@ -537,4 +546,3 @@ static int fatfs_umount(void *dir) {
 }
 
 DECLARE_FILE_SYSTEM_DRIVER(fatfs_driver);
-
