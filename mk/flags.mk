@@ -198,7 +198,6 @@ else
 # clang doesn't support this option yet
 # but some other warnings should be killed
 override COMMON_CCFLAGS += -Wno-unused-function
-src/cmds/net/ping.c: COMMON_CCFLAGS += -Wno-gnu-variable-sized-type-not-at-end
 build/base/obj/src/lib/crypt/b64.o: COMMON_CCFLAGS += -Wno-tautological-constant-out-of-range-compare
 build/base/obj/src/net/neighbour.o: COMMON_CCFLAGS += -Wno-gnu-variable-sized-type-not-at-end
 build/base/obj/../../extbld/third_party/bsp/stmf4cube/core/STM32Cube_FW_F4_V1.12.0/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.o: COMMON_CCFLAGS += -Wno-parentheses-equality
@@ -210,6 +209,8 @@ build/base/obj/src/drivers/flash/stm32cube/stm32_flash_cube.o: COMMON_CCFLAGS +=
 build/base/obj/src/cmds/net/ping.o: COMMON_CCFLAGS += -Wno-gnu-variable-sized-type-not-at-end
 endif
 
+build/base/obj/src/net/lib/rpc/clnt.o: COMMON_CCFLAGS += -Wno-tautological-compare
+endif
 
 override COMMON_CCFLAGS += -Wformat
 
