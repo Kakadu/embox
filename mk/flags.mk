@@ -21,6 +21,15 @@ OBJDUMP ?= $(CROSS_COMPILE)objdump
 OBJCOPY ?= $(CROSS_COMPILE)objcopy
 SIZE    ?= $(CROSS_COMPILE)size
 
+ifneq ($(CC),)
+ifeq ($(shell $(CC) -v 2>&1 | grep -c "clang version"), 1)
+COMPILER := clang
+else
+COMPILER := gcc
+endif
+export COMPILER
+endif
+
 comma_sep_list = $(subst $(\s),$(,),$(strip $1))
 
 COVERAGE_CFLAGS ?= -finstrument-functions \
@@ -177,13 +186,17 @@ override ASFLAGS += $(asflags)
 override COMMON_CCFLAGS := $(COMMON_FLAGS)
 override COMMON_CCFLAGS += -fno-strict-aliasing -fno-common
 override COMMON_CCFLAGS += -Wall -Werror
-override COMMON_CCFLAGS += -Wundef -Wno-trigraphs -Wno-char-subscripts 
+override COMMON_CCFLAGS += -Wundef -Wno-trigraphs -Wno-char-subscripts
 
 # GCC 6 seems to have many library functions declared as __nonnull__, like
-# fread, fwrite, fprintf, ...  Since accessing NULL in embox without MMU 
-# support could cause real damage to whole system in contrast with segfault of 
+# fread, fwrite, fprintf, ...  Since accessing NULL in embox without MMU
+# support could cause real damage to whole system in contrast with segfault of
 # application, we decided to keep explicit null checks and disable the warning.
+ifeq ($(COMPILER),gcc)
 override COMMON_CCFLAGS += -Wno-nonnull-compare
+else
+# clang doesn't support this option yet
+endif
 
 override COMMON_CCFLAGS += -Wformat
 
@@ -216,4 +229,3 @@ CCFLAGS ?=
 
 INCLUDES_FROM_FLAGS := \
 	$(patsubst -I%,%,$(filter -I%,$(CPPFLAGS) $(CXXFLAGS)))
-
