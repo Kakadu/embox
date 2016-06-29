@@ -43,6 +43,9 @@ static inline unsigned int get_cr0(void) {
 	return _cr0;
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+
 static inline void set_cr4(unsigned int val) {
 	asm ("mov %0, %%cr4" : :"r" (val));
 }
@@ -53,6 +56,7 @@ static inline unsigned int get_cr4(void) {
 	return _cr4;
 }
 
+#pragma clang diagnostic pop
 
 static inline unsigned int get_cr2(void) {
 	unsigned int _cr2;
