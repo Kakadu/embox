@@ -150,6 +150,8 @@ ARCH2QEMU=(
 )
 
 QEMU=${AUTOQEMU_PREFIX}qemu-system-${ARCH2QEMU[$AUTOQEMU_ARCH]:-$AUTOQEMU_ARCH}
+command -v $QEMU >/dev/null 2>&1 || { echo >&2 "I require $QEMU but it's not installed.  Aborting."; exit 1; }
+
 QEMU_VER=$($QEMU --version | sed 's/.*version \([0-9.]\+\).*/\1/;s/\./ /g' | xargs printf "%02d%02d%02d")
 
 if [ $QEMU_VER -gt 010200 ]; then
