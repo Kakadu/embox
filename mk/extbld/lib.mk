@@ -74,7 +74,7 @@ EXTRACT  := $(BUILD_DIR)/.extracted
 extract : $(EXTRACT)
 $(EXTRACT): | $(DOWNLOAD_DIR) $(BUILD_DIR)
 	$(foreach i,$(sources_extract),\
-		$(if $(filter %zip,$i),unzip $(DOWNLOAD_DIR)/$i -d $(BUILD_DIR),\
+		$(if $(filter %zip,$i),unzip $(DOWNLOAD_DIR)/$i -d $(BUILD_DIR)>/dev/null,\
 			mkdir -p $(BUILD_DIR) && ( cd $(BUILD_DIR); tar -xf $(DOWNLOAD_DIR)/$i) );)
 	COPY_FILES="$(addprefix $(DOWNLOAD_DIR)/, \
 			$(call targets_git,$(sources_git)) \
@@ -122,5 +122,14 @@ endif
 AUTOCONF_TARGET_TRIPLET=$(AUTOCONF_ARCH)-unknown-none
 endif
 
+
+ifeq ($(COMPILER),clang)
+EMBOX_GCC := "$(CC) -Wno-implicit-int -target $(ARCH)-unknown-none -I$(SRC_DIR)/include -I$(SRC_DIR)/compat/libc/include -I$(SRC_DIR)/compat/posix/include -I$(SRC_DIR)/compat/linux/include -I$(SRC_DIR)/arch/arm/include/ -I$(ROOT_DIR)/build/base/gen/include"
+# next line to fix compilation of openlibm. By some reason incudes are not found
+#EMBOX_GCC := $(EMBOX_GCC) -I$(SRC_DIR)/include
+EMBOX_GXX := "$(EMBOX_GCC)"
+else
 EMBOX_GCC := $(ROOT_DIR)/mk/extbld/arch-embox-gcc
 EMBOX_GXX := $(ROOT_DIR)/mk/extbld/arch-embox-g++
+endif
+
