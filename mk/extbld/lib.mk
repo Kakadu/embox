@@ -124,7 +124,7 @@ endif
 
 
 ifeq ($(COMPILER),clang)
-EMBOX_GCC := "$(CC) -Wno-implicit-int -target $(ARCH)-unknown-none -I$(SRC_DIR)/include -I$(SRC_DIR)/compat/libc/include -I$(SRC_DIR)/compat/posix/include -I$(SRC_DIR)/compat/linux/include -I$(SRC_DIR)/arch/arm/include/ -I$(ROOT_DIR)/build/base/gen/include"
+EMBOX_GCC := $$'$(CC) -Wno-implicit-int -target $(ARCH)-unknown-none -I$(SRC_DIR)/include -I$(SRC_DIR)/compat/libc/include -I$(SRC_DIR)/compat/posix/include -I$(SRC_DIR)/compat/linux/include -I$(SRC_DIR)/arch/arm/include/ -I$(ROOT_DIR)/build/base/gen/include -D\'__strong_alias(alias, sym)=__asm__(".global " \#alias "\\n" \#alias " = " \#sym);\' '
 # next line to fix compilation of openlibm. By some reason incudes are not found
 #EMBOX_GCC := $(EMBOX_GCC) -I$(SRC_DIR)/include
 EMBOX_GXX := "$(EMBOX_GCC)"
