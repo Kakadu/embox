@@ -201,6 +201,8 @@ override COMMON_CCFLAGS += -Wno-unused-function
 src/cmds/net/ping.c: COMMON_CCFLAGS += -Wno-gnu-variable-sized-type-not-at-end
 build/base/obj/src/net/neighbour.o: COMMON_CCFLAGS += -Wno-gnu-variable-sized-type-not-at-end
 build/base/obj/src/net/lib/rpc/clnt.o: COMMON_CCFLAGS += -Wno-tautological-compare
+build/base/obj/src/drivers/serial/stm32_usart/stm_usart_cube_diag.o: COMMON_CCFLAGS += -Wno-unused-const-variable
+build/base/obj/src/drivers/flash/stm32cube/stm32_flash_cube.o: COMMON_CCFLAGS += -Wno-unused-const-variable
 endif
 
 build/base/obj/src/cmds/net/ping.o: COMMON_CCFLAGS += -Wno-gnu-variable-sized-type-not-at-end
