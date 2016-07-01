@@ -90,7 +90,7 @@ static struct vt_token *vt_from_term_token(struct vt_token *vt_token,
 	char char2 = DECODE_CHAR2(terminal_token);
 	char code = DECODE_CODE(terminal_token);
 
-	int attrs_len;
+	signed short attrs_len;
 
 	if (!is_valid_action(action)) {
 		return NULL;
