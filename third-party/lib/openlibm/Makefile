@@ -15,11 +15,20 @@ OLIBM_ARCH ?=
 ifneq ($(filter x86 usermode86,$(ARCH)),)
 OLIBM_ARCH := i386
 endif
+
+ifeq ($(COMPILER),gcc)
+
+USEFLAG="USEGCC=1"
 ifeq ($(ARCH), arm)
 OLIBM_ARCH := $(subst -march=,,$(filter -march=%,$(CFLAGS)))
 ifeq ($(strip $(OLIBM_ARCH)),)
 $(error OLIBM_ARCH -march is undefined)
 endif
+endif
+
+else
+USEFLAG="CLANG=1"
+OLIBM_ARCH := $(shell echo '$(CFLAGS)' | awk '{for(i=1;i<=NF;i++) if ($$i=="-target") print $$(i+1)}' | cut -f 1 -d '-')
 endif
 
 $(CONFIGURE) :
@@ -28,7 +37,7 @@ $(CONFIGURE) :
 $(BUILD) :
 	cd $(PKG_SOURCE_DIR) && ( \
 		make \
-			USEGCC=1 \
+			$(USEFLAG) \
 			ARCH=$(OLIBM_ARCH) \
 			OS=Embox \
 			CC=$(EMBOX_GCC) \
