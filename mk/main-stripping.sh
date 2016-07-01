@@ -25,7 +25,12 @@ fi
 
 OBJCOPY=${EMBOX_CROSS_COMPILE}objcopy
 OBJDUMP=${EMBOX_CROSS_COMPILE}objdump
-CC=${EMBOX_CROSS_COMPILE}gcc
+if [ "$COMPILER" = "clang" ]; then
+	# we seems not need anything specific for clang
+	echo 1
+else
+	CC=${EMBOX_CROSS_COMPILE}gcc;
+fi
 LD=${EMBOX_CROSS_COMPILE}ld
 
 CMD_WRAPPER_SRC=$ROOT_DIR/mk/script/application_template.c
