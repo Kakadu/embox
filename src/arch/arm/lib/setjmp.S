@@ -22,14 +22,14 @@
    Nick Clifton, Cygnus Solutions, 13 June 1997.  */
 
 /* ANSI concatenation macros.  */
-#define CONCAT(a, b)  CONCAT2(a, b)
+#define CONCAT(a, b)  CONCAT2(a,b)
 #define CONCAT2(a, b) a##b
 
 #ifndef __USER_LABEL_PREFIX__
 #error  __USER_LABEL_PREFIX__ not defined
 #endif
 
-#define SYM(x) CONCAT (__USER_LABEL_PREFIX__, x)
+#define SYM(x) CONCAT(__USER_LABEL_PREFIX__,x)
 
 #ifdef __ELF__
 #define TYPE(x) .type SYM(x),function
