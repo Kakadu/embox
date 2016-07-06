@@ -27,6 +27,7 @@ endif
 endif
 
 else
+$(warning CFLAGS = $(CFLAGS) )
 USEFLAG="CLANG=1"
 OLIBM_ARCH := $(shell echo '$(CFLAGS)' | awk '{for(i=1;i<=NF;i++) if ($$i=="-target") print $$(i+1)}' | cut -f 1 -d '-')
 endif
