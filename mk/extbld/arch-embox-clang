@@ -23,6 +23,11 @@ case $EMBOX_GCC_LINK in
 		;;
 esac
 
+echo "ARGLINE = $ARG_LINE"
+echo "EMBOX_IMPORTED_CPPFLAGS = $EMBOX_IMPORTED_CPPFLAGS"
+
+
+
 case " $@ " in
 	*" -c "*) ARG_LINE="$C_CXX_FLAGS";;
 	*" -E "*) ARG_LINE=;;
@@ -34,5 +39,33 @@ esac
 ARG_LINE="$ARG_LINE $EMBOX_IMPORTED_CPPFLAGS"
 PWD_ARG_LINE="$(for i in $ARG_LINE; do echo ${i/$PWD/.}; done)"
 # echo "$EMBOX_CROSS_COMPILE${cmd#arch-embox-} $@ $PWD_ARG_LINE" >&2
-clang "$@" $PWD_ARG_LINE
+
+arr=(`echo $@ | xargs`)
+POSTARGS="-Wno-implicit-int "
+POSTARGS="-D'__strong_alias(alias, sym)=__asm__(\".global \" #alias \"\\n\" #alias \" = \" #sym);' $POSTARGS"
+
+echo PIZDA $POSTARGS
+
+for ((i=1; i<=${#arr[@]}; i++ )); do
+	#echo "$i"
+	#echo "${arr[$i]}" #| sed -n "s/-march\=\(.*\)/\1/"
+	declare -x res=`echo "${arr[$i]}" | sed -n "s/-march\=\(.*\)/\1/p"`
+
+	if [ "x$res" != "x" ]; then
+		echo $i ${arr[$i]} $res
+
+		case "$res" in
+		armv7em)
+			echo "AAAAAAAAAAAAAAAA"
+			POSTARGS="-target $res--- $POSTARGS"
+			;;
+		esac
+		arr[$i]=""
+	fi
+
+	#let i+=1
+done
+
+set -x
+clang $( IFS=$' '; echo "${arr[*]}" )  $PWD_ARG_LINE $POSTARGS
 exit $?
