@@ -16,7 +16,7 @@ esac
 
 case $EMBOX_GCC_LINK in
 	full)
-	       	ARG_LINE="$C_CXX_FLAGS $EMBOX_IMPORTED_LDFLAGS $EMBOX_IMPORTED_LDFLAGS_FULL"
+					ARG_LINE="$C_CXX_FLAGS $EMBOX_IMPORTED_LDFLAGS $EMBOX_IMPORTED_LDFLAGS_FULL -target armv7em-none-eabi"
 		;;
 	*)
 	       	ARG_LINE="$C_CXX_FLAGS $EMBOX_IMPORTED_LDFLAGS -Wl,-r"
@@ -41,10 +41,10 @@ PWD_ARG_LINE="$(for i in $ARG_LINE; do echo ${i/$PWD/.}; done)"
 # echo "$EMBOX_CROSS_COMPILE${cmd#arch-embox-} $@ $PWD_ARG_LINE" >&2
 
 arr=(`echo $@ | xargs`)
-POSTARGS="-Wno-implicit-int "
-POSTARGS="-D'__strong_alias(alias, sym)=__asm__(\".global \" #alias \"\\n\" #alias \" = \" #sym);' $POSTARGS"
+POSTARGS=""
+#POSTARGS="-D'__strong_alias(alias, sym)=__asm__(\".global \" #alias \"\\n\" #alias \" = \" #sym);' $POSTARGS"
+#POSTARGS=$'-D\'__strong_alias(alias, sym)=__asm__(\".global \" #alias \"\\n\" #alias \" = \" #sym);\'' ""
 
-echo PIZDA $POSTARGS
 
 for ((i=1; i<=${#arr[@]}; i++ )); do
 	#echo "$i"
@@ -67,5 +67,7 @@ for ((i=1; i<=${#arr[@]}; i++ )); do
 done
 
 set -x
-clang $( IFS=$' '; echo "${arr[*]}" )  $PWD_ARG_LINE $POSTARGS
+echo 'POSTARGS are '"$POSTARGS"''
+echo $POSTARGS
+clang $( IFS=$' '; echo "${arr[*]}" ) $PWD_ARG_LINE $POSTARGS -include sys/cdefs.h
 exit $?
