@@ -35,4 +35,11 @@
 # define EMPTY_STRUCT_BODY
 #endif
 
+#ifdef __clang__
+#define __strong_alias(sym,alias) \
+		__asm__(".global " #alias); \
+		__asm__(#alias " = " #sym);
+
+#endif
+
 #endif /* SYS_CDEFS_H_ */
