@@ -23,8 +23,8 @@ case $EMBOX_GCC_LINK in
 		;;
 esac
 
-echo "ARGLINE = $ARG_LINE"
-echo "EMBOX_IMPORTED_CPPFLAGS = $EMBOX_IMPORTED_CPPFLAGS"
+#echo "ARGLINE = $ARG_LINE"
+#echo "EMBOX_IMPORTED_CPPFLAGS = $EMBOX_IMPORTED_CPPFLAGS"
 
 
 
@@ -56,8 +56,12 @@ for ((i=1; i<=${#arr[@]}; i++ )); do
 
 		case "$res" in
 		armv7em)
-			echo "AAAAAAAAAAAAAAAA"
-			POSTARGS="-target $res--- $POSTARGS"
+			echo "AAAAAAAAAAAAAAAA";
+			if [ "$EMBOX_GCC_LINK" = "full" ]; then
+				POSTARGS="$POSTARGS -target arm---"
+			else
+				POSTARGS="$POSTARGS -target $res---"
+			fi
 			;;
 		esac
 		arr[$i]=""
@@ -66,8 +70,13 @@ for ((i=1; i<=${#arr[@]}; i++ )); do
 	#let i+=1
 done
 
-set -x
+if [ "$POSTARGS" = "" ]; then
+	POSTARGS="-target arm-none-eabi"
+fi
+
+#set -x
 echo 'POSTARGS are '"$POSTARGS"''
-echo $POSTARGS
-clang $( IFS=$' '; echo "${arr[*]}" ) $PWD_ARG_LINE $POSTARGS -include sys/cdefs.h
+#echo $POSTARGS
+#echo "${arr[*]}"
+clang $( IFS=$' '; echo "${arr[*]}" ) $PWD_ARG_LINE $POSTARGS -include sys/cdefs.h -Os -v
 exit $?
