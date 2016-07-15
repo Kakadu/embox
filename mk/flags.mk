@@ -205,10 +205,10 @@ build/base/obj/../../extbld/third_party/bsp/stmf4cube/core/STM32Cube_FW_F4_V1.12
 build/base/obj/src/net/lib/rpc/clnt.o: COMMON_CCFLAGS += -Wno-tautological-compare
 build/base/obj/src/drivers/serial/stm32_usart/stm_usart_cube_diag.o: COMMON_CCFLAGS += -Wno-unused-const-variable
 build/base/obj/src/drivers/flash/stm32cube/stm32_flash_cube.o: COMMON_CCFLAGS += -Wno-unused-const-variable
+override COMMON_CCFLAGS += -Wno-varargs -Wno-duplicate-decl-specifier
 
+build/base/obj/src/net/l3/icmpv4.o: COMMON_CCFLAGS += -Wno-duplicate-decl-specifier
 build/base/obj/src/cmds/net/ping.o: COMMON_CCFLAGS += -Wno-gnu-variable-sized-type-not-at-end
-endif
-
 build/base/obj/src/net/lib/rpc/clnt.o: COMMON_CCFLAGS += -Wno-tautological-compare
 endif
 
