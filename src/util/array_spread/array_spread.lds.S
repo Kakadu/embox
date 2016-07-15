@@ -1,6 +1,6 @@
 
 SECTIONS {
 	.rodata : {
-		*(SORT(.array_spread.*.rodata))
+		*(SORT(.array_spread.*.rodata*));
 	}
 }
