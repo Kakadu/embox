@@ -177,7 +177,7 @@ override ASFLAGS += $(asflags)
 override COMMON_CCFLAGS := $(COMMON_FLAGS)
 override COMMON_CCFLAGS += -fno-strict-aliasing -fno-common
 override COMMON_CCFLAGS += -Wall -Werror
-override COMMON_CCFLAGS += -Wundef -Wno-trigraphs -Wno-char-subscripts 
+override COMMON_CCFLAGS += -Wno-trigraphs -Wno-char-subscripts
 
 # GCC 6 seems to have many library functions declared as __nonnull__, like
 # fread, fwrite, fprintf, ...  Since accessing NULL in embox without MMU 
