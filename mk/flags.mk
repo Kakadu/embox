@@ -183,7 +183,7 @@ override COMMON_CCFLAGS += -Wno-trigraphs -Wno-char-subscripts
 # fread, fwrite, fprintf, ...  Since accessing NULL in embox without MMU 
 # support could cause real damage to whole system in contrast with segfault of 
 # application, we decided to keep explicit null checks and disable the warning.
-override COMMON_CCFLAGS += -Wno-nonnull-compare
+#override COMMON_CCFLAGS += -Wno-nonnull-compare
 
 override COMMON_CCFLAGS += -Wformat
 

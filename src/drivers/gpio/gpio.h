@@ -80,6 +80,9 @@ extern struct gpio *gpio_by_num(int num_port);
 
 extern int gpio_settings(struct gpio *gpio, gpio_mask_t mask, int mode);
 
+extern void gpio_conf_as_input(struct gpio *gpio, gpio_mask_t mask);
+
+
 extern void gpio_set_level(struct gpio *gpio, gpio_mask_t mask, char level);
 
 extern gpio_mask_t gpio_get_level(struct gpio *gpio, gpio_mask_t mask);

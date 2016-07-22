@@ -129,6 +129,8 @@ int extract_level(int pos, int argc, char **argv) {
 }
 
 static void apply(struct gpio *gpio, gpio_mask_t pin, int level) {
+	printf("%s %s (gpio = 0x%X, mask = 0x%X, level=%d)\n", __FILE__, __func__,
+				 gpio, pin, level);
 	gpio_set_level(gpio, pin, level);
 }
 

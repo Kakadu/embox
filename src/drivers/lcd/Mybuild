@@ -1,6 +1,6 @@
-
 package embox.driver.lcd
 
+@BuildDepends(third_party.bsp.stmf4cube.core)
 module hd44780 {
 	option string control_port
 
@@ -20,6 +20,7 @@ module hd44780 {
 	source "hd44780.c"
 
 	depends embox.driver.gpio.api
+	depends embox.compat.posix.util.sleep
 }
 /* include example (suitable for stm32vl)
 
