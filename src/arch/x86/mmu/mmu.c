@@ -56,9 +56,11 @@ static inline unsigned int get_cr4(void) {
 	asm ("mov %%cr2, %0":"=r" (_cr4):);
 	return _cr4;
 }
+
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
+
 static inline unsigned int get_cr2(void) {
 	unsigned int _cr2;
 

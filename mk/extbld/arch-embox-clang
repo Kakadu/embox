@@ -14,18 +14,16 @@ case $cmd in
 	*)     echo "Unknown flags for $cmd"; exit 1;;
 esac
 
+COMPILER=clang
 case $EMBOX_GCC_LINK in
 	full)
-					ARG_LINE="$C_CXX_FLAGS $EMBOX_IMPORTED_LDFLAGS $EMBOX_IMPORTED_LDFLAGS_FULL -target armv7em-none-eabi"
+					ARG_LINE="$C_CXX_FLAGS $EMBOX_IMPORTED_LDFLAGS $EMBOX_IMPORTED_LDFLAGS_FULL -target armv7em-none-eabi";
+					COMPILER="arm-none-eabi-gcc -mthumb -mlittle-endian -march=armv7e-m -mcpu=cortex-m4 -msoft-float"
 		;;
 	*)
 	       	ARG_LINE="$C_CXX_FLAGS $EMBOX_IMPORTED_LDFLAGS -Wl,-r"
 		;;
 esac
-
-echo "ARGLINE = $ARG_LINE"
-echo "EMBOX_IMPORTED_CPPFLAGS = $EMBOX_IMPORTED_CPPFLAGS"
-
 
 
 case " $@ " in
@@ -44,30 +42,49 @@ arr=(`echo $@ | xargs`)
 POSTARGS=""
 #POSTARGS="-D'__strong_alias(alias, sym)=__asm__(\".global \" #alias \"\\n\" #alias \" = \" #sym);' $POSTARGS"
 #POSTARGS=$'-D\'__strong_alias(alias, sym)=__asm__(\".global \" #alias \"\\n\" #alias \" = \" #sym);\'' ""
+arr_pwd_arg_line=(`echo $PWD_ARG_LINE | xargs`)
 
+if [ "$EMBOX_GCC_LINK" = "full" ]; then
 
-for ((i=1; i<=${#arr[@]}; i++ )); do
-	#echo "$i"
-	#echo "${arr[$i]}" #| sed -n "s/-march\=\(.*\)/\1/"
-	declare -x res=`echo "${arr[$i]}" | sed -n "s/-march\=\(.*\)/\1/p"`
+	for ((i=1; i<=${#arr_pwd_arg_line[@]}; i++ )); do
+		if [ "${arr_pwd_arg_line[$i]}" = "-target" ]; then
+			arr_pwd_arg_line[$i]=""
+			arr_pwd_arg_line[$((i+1))]=""
+		fi
+	done
+else
+	for ((i=1; i<=${#arr[@]}; i++ )); do
+		declare -x res=`echo "${arr[$i]}" | sed -n "s/-march\=\(.*\)/\1/p"`
 
-	if [ "x$res" != "x" ]; then
-		echo $i ${arr[$i]} $res
+		if [ "x$res" != "x" ]; then
 
-		case "$res" in
-		armv7em)
-			echo "AAAAAAAAAAAAAAAA"
-			POSTARGS="-target $res--- $POSTARGS"
-			;;
-		esac
-		arr[$i]=""
-	fi
+			case "$res" in
+			arm)
+				#echo "AAAAAAAAAAAAAAAA";
+				if [ "$EMBOX_GCC_LINK" = "full" ]; then
+					POSTARGS="$POSTARGS -target arm---"
+				else
+					POSTARGS="$POSTARGS -target $res---"
+				fi
+				;;
+			armv7em)
+				#echo "BBBBBBBBBBBBBBBBB";
+				if [ "$EMBOX_GCC_LINK" = "full" ]; then
+					POSTARGS="$POSTARGS -target arm---"
+				else
+					POSTARGS="$POSTARGS -target $res---"
+				fi
+				;;
+			esac
+			arr[$i]=""
+		fi
+	done
+fi
+#echo $( IFS=$' '; echo "${arr_pwd_arg_line[*]}" )
 
-	#let i+=1
-done
+PWD_ARG_LINE=$( IFS=$' '; echo "${arr_pwd_arg_line[*]}" )
 
-set -x
-echo 'POSTARGS are '"$POSTARGS"''
-echo $POSTARGS
-clang $( IFS=$' '; echo "${arr[*]}" ) $PWD_ARG_LINE $POSTARGS -include sys/cdefs.h
+$COMPILER $sobaka \
+	$PWD_ARG_LINE \
+	$POSTARGS -include sys/cdefs.h
 exit $?
