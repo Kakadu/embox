@@ -196,7 +196,14 @@ ifeq ($(COMPILER),gcc)
 override COMMON_CCFLAGS += -Wno-nonnull-compare
 else
 # clang doesn't support this option yet
+# but some other warnings should be killed
+override COMMON_CCFLAGS += -Wno-unused-function
+src/cmds/net/ping.c: COMMON_CCFLAGS += -Wno-gnu-variable-sized-type-not-at-end
+build/base/obj/src/net/neighbour.o: COMMON_CCFLAGS += -Wno-gnu-variable-sized-type-not-at-end
+build/base/obj/src/net/lib/rpc/clnt.o: COMMON_CCFLAGS += -Wno-tautological-compare
 endif
+
+build/base/obj/src/cmds/net/ping.o: COMMON_CCFLAGS += -Wno-gnu-variable-sized-type-not-at-end
 
 override COMMON_CCFLAGS += -Wformat
 
