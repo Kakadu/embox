@@ -1,11 +1,20 @@
+/**
+ * @file fec.c
+ * @brief
+ * @author Denis Deryugin <deryugin.denis@gmail.com>
+ * @version
+ * @date 2016-08-11
+ */
+
 #include "fec.h"
 
 #include <assert.h>
 #include <errno.h>
 #include <string.h>
 
-#include <hal/reg.h>
+#include <drivers/common/memory.h>
 
+#include <hal/reg.h>
 #include <kernel/irq.h>
 
 #include <net/inetdevice.h>
@@ -13,6 +22,7 @@
 #include <net/l2/ethernet.h>
 #include <net/netdevice.h>
 #include <net/skbuff.h>
+#include <net/util/show_packet.h>
 
 #include <util/log.h>
 
@@ -30,26 +40,6 @@ struct fec_priv {
 };
 
 static struct fec_priv fec_priv;
-
-#define DEBUG 0
-#if DEBUG
-#include <kernel/printk.h>
-/* Debugging routines */
-static inline void show_packet(uint8_t *raw, int size, char *title) {
-	int i;
-
-	printk("\nPACKET(%d) %s:", size, title);
-	for (i = 0; i < size; i++) {
-		if (!(i % 16)) {
-			printk("\n");
-		}
-		printk(" %02hhX", *(raw + i));
-	}
-	printk("\n.\n");
-}
-#else
-#define show_packet(raw, size,title)
-#endif
 
 static void fec_reg_dump(const char * title) {
 	log_debug("%s", title);
@@ -116,7 +106,7 @@ static void fec_tbd_init(struct fec_priv *fec)
 
 	memset(fec->tbd_base, 0, size);
 
-	fec->tbd_base[TX_BUF_FRAMES - 1].flags1 = FLAG_W;
+	fec->tbd_base[TX_BUF_FRAMES - 1].flags = FLAG_W;
 
 	dcache_flush(fec->tbd_base, size);
 
@@ -136,11 +126,11 @@ static void fec_rbd_init(struct fec_priv *fec, int count, int dsize) {
 	for (i = 0; i < count; i++) {
 		fec->rbd_base[i].data_pointer = (uint32_t)&_rx_buf[i][0];
 		fec->rbd_base[i].len = 0;
-		fec->rbd_base[i].flags1 = FLAG_R;
+		fec->rbd_base[i].flags = FLAG_R;
 	}
 
 	/* Mark the last RBD to close the ring. */
-	fec->rbd_base[count - 1].flags1 = FLAG_W | FLAG_R;
+	fec->rbd_base[count - 1].flags = FLAG_W | FLAG_R;
 
 	fec->rbd_index = 0;
 
@@ -187,7 +177,7 @@ static int fec_xmit(struct net_device *dev, struct sk_buff *skb) {
 
 		desc = &_tx_desc_ring[cur_tx_desc];
 		dcache_inval(desc, sizeof(struct fec_buf_desc));
-		if (desc->flags1 & FLAG_R) {
+		if (desc->flags & FLAG_R) {
 			log_error("tx desc still busy");
 			goto out1;
 		}
@@ -195,7 +185,7 @@ static int fec_xmit(struct net_device *dev, struct sk_buff *skb) {
 		desc->data_pointer = (uint32_t)&_tx_buf[cur_tx_desc][0];
 		//desc->data_pointer = (uint32_t)data;
 		desc->len          = skb->len;
-		desc->flags1       |= FLAG_L | FLAG_TC | FLAG_R;
+		desc->flags       |= FLAG_L | FLAG_TC | FLAG_R;
 		dcache_flush(desc, sizeof(struct fec_buf_desc));
 
 		REG32_LOAD(desc + sizeof(*desc) - 4);
@@ -217,7 +207,7 @@ static int fec_xmit(struct net_device *dev, struct sk_buff *skb) {
 		timeout = 0xFFFFFF;
 		while(--timeout) {
 			dcache_inval(desc, sizeof(struct fec_buf_desc));
-			if (!(desc->flags1 & FLAG_R)) {
+			if (!(desc->flags & FLAG_R)) {
 				break;
 			}
 		}
@@ -325,7 +315,7 @@ static int imx6_receive(struct net_device *dev_id, struct fec_priv *priv) {
 	while(1) {
 		desc = &_rx_desc_ring[priv->rbd_index];
 		dcache_inval(desc, sizeof(struct fec_buf_desc));
-		if (desc->flags1 & FLAG_E) {
+		if (desc->flags & FLAG_E) {
 			break;
 		}
 
@@ -346,7 +336,7 @@ static int imx6_receive(struct net_device *dev_id, struct fec_priv *priv) {
 
 		priv->rbd_index = (priv->rbd_index + 1) % RX_BUF_FRAMES;
 
-		desc->flags1 |= FLAG_R;
+		desc->flags |= FLAG_R;
 		dcache_flush(desc, sizeof(struct fec_buf_desc));
 
 		REG32_STORE(ENET_RDAR, (1 << 24));
@@ -411,3 +401,10 @@ static int fec_init(void) {
 
 	return inetdev_register_dev(nic);
 }
+
+static struct periph_memory_desc fec_mem = {
+	.start = NIC_BASE,
+	.len   = 0x200,
+};
+
+PERIPH_MEMORY_DEFINE(fec_mem);

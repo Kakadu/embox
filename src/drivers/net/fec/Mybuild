@@ -10,10 +10,12 @@ module fec {
 
 	source "fec.c"
 
+	depends embox.driver.periph_memory
 	depends embox.net.skbuff
 	depends embox.net.l2.ethernet
 	depends embox.kernel.irq_api
 	depends embox.net.dev
 	depends embox.net.core
 	depends embox.net.entry_api
+	depends embox.net.util.show_packet
 }

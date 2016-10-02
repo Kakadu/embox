@@ -25,6 +25,9 @@ case $EMBOX_GCC_LINK in
 		;;
 esac
 
+#echo "ARGLINE = $ARG_LINE"
+#echo "EMBOX_IMPORTED_CPPFLAGS = $EMBOX_IMPORTED_CPPFLAGS"
+
 
 case " $@ " in
 	*" -c "*) ARG_LINE="$C_CXX_FLAGS";;
@@ -82,7 +85,21 @@ else
 fi
 #echo $( IFS=$' '; echo "${arr_pwd_arg_line[*]}" )
 
+#if [ "$POSTARGS" = "" ]; then
+	#POSTARGS="-target arm-none-eabi"
+#fi
+#POSTARGS=""
+#set -x
+#echo 'POSTARGS are '"$POSTARGS"''
+#echo "PWD_ARG_LINE is '$PWD_ARG_LINE'"
+#echo $POSTARGS
+#echo "${arr[*]}"
+#set -x
+sobaka=$( IFS=$' '; echo "${arr[*]}" )
 PWD_ARG_LINE=$( IFS=$' '; echo "${arr_pwd_arg_line[*]}" )
+echo
+#echo $sobaka
+set -x
 
 $COMPILER $sobaka \
 	$PWD_ARG_LINE \
