@@ -10,6 +10,7 @@ PKG_MD5 := 4bc22ffc211f959080173587e81742ec
 PKG_PATCHES := openlibm_embox.patch
 
 include $(EXTBLD_LIB)
+include $(ROOT_DIR)/mk/core/compiler.mk
 
 OLIBM_ARCH ?=
 ifneq ($(filter x86 usermode86,$(ARCH)),)

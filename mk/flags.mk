@@ -1,21 +1,6 @@
 
 include mk/core/common.mk
-
-ifndef CC
-COMPILER := gcc
-CC := gcc
-else
-
-ifneq ($(CC),)
-ifeq ($(shell $(CC) -v 2>&1 | grep -c "clang version"), 1)
-COMPILER := clang
-else
-COMPILER := gcc
-endif
-endif
-
-endif
-export COMPILER
+include mk/core/compiler.mk
 
 CFLAGS ?=
 CXXFLAGS ?=
@@ -89,6 +74,7 @@ EXTERNAL_MAKE_PRO = \
 	$(MAKE) -C $(mod_build_dir) $(EXTERNAL_MAKE_FLAGS)
 
 EXTERNAL_MAKE_FLAGS = \
+	CC=$(CC) \
 	MAKEFLAGS= \
 	$(foreach path_var, \
 			ROOT_DIR \
