@@ -6,7 +6,8 @@ else
 
 ifneq ($(CC),)
 
-ifeq ($(wildcard $(CC)),)
+DD := $(shell command -v $(CC) 2> /dev/null)
+ifndef DD
 $(error Compiler is not installed)
 endif
 
