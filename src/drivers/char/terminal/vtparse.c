@@ -46,10 +46,11 @@ static void do_action(struct vtparse *parser, vt_action_t action, char ch) {
 		break;
 
 	case VT_ACTION_COLLECT:
-		if (token->attrs_len == -1) {
+		// Buffer overflow check may be needed
+		//if (token->attrs_len == -1) {
 			/* attrs buffer overflow. */
-			break;
-		}
+		//	break;
+		//}
 
 		/* Append the character to the intermediate params. */
 		token->attrs[token->attrs_len++] = ch;
