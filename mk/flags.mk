@@ -1,5 +1,6 @@
 
 include mk/core/common.mk
+#include mk/core/compiler.mk
 
 CFLAGS ?=
 CXXFLAGS ?=
@@ -9,9 +10,6 @@ ARFLAGS ?=
 LDFLAGS ?=
 
 CROSS_COMPILE ?=
-
-CC      ?= $(CROSS_COMPILE)gcc
-CPP     ?= $(CC) -E
 CXX     ?= $(CROSS_COMPILE)g++
 AR      ?= $(CROSS_COMPILE)ar
 AS      ?= $(CROSS_COMPILE)as
@@ -20,6 +18,17 @@ NM      ?= $(CROSS_COMPILE)nm
 OBJDUMP ?= $(CROSS_COMPILE)objdump
 OBJCOPY ?= $(CROSS_COMPILE)objcopy
 SIZE    ?= $(CROSS_COMPILE)size
+
+ifeq ($(COMPILER),clang)
+CC      ?= clang
+#CC      ?= $(CROSS_COMPILE)clang
+else
+CC      ?= $(CROSS_COMPILE)gcc
+LIBGCC_FINDER=$(CC) $(CFLAGS)
+endif
+CPP     ?= $(CC) -E
+
+
 
 comma_sep_list = $(subst $(\s),$(,),$(strip $1))
 
@@ -63,6 +72,9 @@ EXTERNAL_MAKE_PRO = \
 		-o $(abspath $(mod_build_dir))/Makefile && \
 	$(MAKE) -C $(mod_build_dir) $(EXTERNAL_MAKE_FLAGS)
 
+#COMPILER=$(COMPILER) \
+
+
 EXTERNAL_MAKE_FLAGS = \
 	MAKEFLAGS= \
 	$(foreach path_var, \
@@ -90,6 +102,7 @@ EXTERNAL_MAKE_FLAGS = \
 			CACHE_DIR, \
 		$(path_var)=$(abspath $($(path_var)))) \
 	BUILD_DIR=$(abspath $(mod_build_dir)) \
+	COMPILER=$(COMPILER) \
 	EMBOX_ARCH='$(ARCH)' \
 	EMBOX_CROSS_COMPILE='$(CROSS_COMPILE)' \
 	EMBOX_MAKEFLAGS='$(MAKEFLAGS)' \
@@ -181,15 +194,29 @@ override COMMON_CCFLAGS += -Wundef -Wno-trigraphs -Wno-char-subscripts
 
 override COMMON_CCFLAGS += -Wno-gnu-designator
 
+ifneq ($(COMPILER),clang)
 # This option conflicts with some third-party stuff, so we disable it.
 override COMMON_CCFLAGS += -Wno-misleading-indentation
-
 
 # GCC 6 seems to have many library functions declared as __nonnull__, like
 # fread, fwrite, fprintf, ...  Since accessing NULL in embox without MMU 
 # support could cause real damage to whole system in contrast with segfault of 
 # application, we decided to keep explicit null checks and disable the warning.
 override COMMON_CCFLAGS += -Wno-nonnull-compare
+else
+# happens in stm32_flash_cube.c
+override COMMON_CCFLAGS += -Wno-unused-const-variable
+# in ping.c
+override COMMON_CCFLAGS += -Wno-gnu-variable-sized-type-not-at-end
+# icmpv4.c
+override COMMON_CCFLAGS += -Wno-varargs
+# src/drivers/tty/serial/ttys_processing.c and maybe many others
+override COMMON_CCFLAGS += -Wno-unused-function
+# src/lib/crypt/b64.c
+override COMMON_CCFLAGS += -Wno-tautological-constant-out-of-range-compare
+# build/extbld/third_party/bsp/stmf4cube/core/STM32Cube_FW_F4_V1.13.0/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c
+override COMMON_CCFLAGS += -Wno-parentheses-equality
+endif
 
 override COMMON_CCFLAGS += -Wformat
 
